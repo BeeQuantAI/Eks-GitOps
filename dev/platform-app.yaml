@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: platform-app
+  # namespace: 1-example
+spec:
+  selector:
+    matchLabels:
+      app: platform-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: platform-app
+    spec:
+      containers:
+      - name: platform-app
+        image: 417805623903.dkr.ecr.ap-southeast-2.amazonaws.com/beequantapp:V0.0.0.3
+        ports:
+        - containerPort: 5173
+        env:
+        - name: NEXT_PUBLIC_DEV_SERVER_URL
+          value: "https://beequantai.net/graphql"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: platform-app
+  annotations:
+    alb.ingress.kubernetes.io/healthcheck-path: /
+  # namespace: 1-example
+spec:
+  ports:
+  - port: 443
+    targetPort: 5173
+    protocol: TCP
+  type: NodePort
+  selector:
+    app: platform-app
