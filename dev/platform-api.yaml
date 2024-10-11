@@ -33,9 +33,17 @@ spec:
       #     export JWT_SECRET="{{ .Data.data.JWT_SECRET }}"
       #     {{- end -}}
     spec:
+      serviceAccountName: aws-secret-manager-role
+      volumes:
+      - name: secrets-store-inline
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: "aws-secrets"
       containers:
       - name: platform-api
-        image: 417805623903.dkr.ecr.ap-southeast-2.amazonaws.com/beequantapi:V0.0.0.5
+        image: 417805623903.dkr.ecr.ap-southeast-2.amazonaws.com/beequantapi:v0.0.10
         ports:
         - containerPort: 3000
         env:
@@ -48,16 +56,37 @@ spec:
         - name: DB_PASSWORD
           value: "CORE_ADMIN"
         - name: DB_NAME
-          value: "bq_Core"
+          value: "bqCore"
         - name: JWT_SECRET
           value: "hello_beeQuant"
+        - name: "EMAIL_USER"
+          value: "info@beequant.ai"
+        - name: "EMAIL_PASS"
+          value: "qyXbab-famhiq-gewha9"
+        - name: "GOOGLE_CLIENT_ID"
+          value: "*"
+        - name: "GOOGLE_CLIENT_SECRET"
+          value: "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"
+        - name: "FACEBOOK_APP_ID"
+          value: "FACEBOOK_APP_ID"
+        - name: "FACEBOOK_APP_SECRET"
+          value: "FACEBOOK_APP_SECRET"
+        - name: "OAUTH_REDIRECT_URI"
+          value: "https://beequantai.net/login-callback"
+        - name: "FRONTEND_URL"
+          value: "https://beequantai.net"
+        volumeMounts:
+        - name: secrets-store-inline
+          mountPath: "/mnt/secrets-store"
+          readOnly: true
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: platform-api
   annotations:
-    alb.ingress.kubernetes.io/healthcheck-path: /healthcheck
+    service.beta.kubernetes.io/aws-load-balancer-type: alb
+    # service.beta.kubernetes.io/aws-load-balancer-internal: "true"
   # namespace: 1-example
 spec:
   ports:
