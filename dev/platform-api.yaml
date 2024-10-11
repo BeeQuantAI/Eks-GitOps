@@ -33,14 +33,14 @@ spec:
       #     export JWT_SECRET="{{ .Data.data.JWT_SECRET }}"
       #     {{- end -}}
     spec:
-      serviceAccountName: aws-secret-manager-role
-      volumes:
-      - name: secrets-store-inline
-        csi:
-          driver: secrets-store.csi.k8s.io
-          readOnly: true
-          volumeAttributes:
-            secretProviderClass: "aws-secrets"
+      # serviceAccountName: aws-secret-manager-role
+      # volumes:
+      # - name: secrets-store-inline
+      #   csi:
+      #     driver: secrets-store.csi.k8s.io
+      #     readOnly: true
+      #     volumeAttributes:
+      #       secretProviderClass: "aws-secrets"
       containers:
       - name: platform-api
         image: 417805623903.dkr.ecr.ap-southeast-2.amazonaws.com/beequantapi:v0.0.10
@@ -75,10 +75,10 @@ spec:
           value: "https://beequantai.net/login-callback"
         - name: "FRONTEND_URL"
           value: "https://beequantai.net"
-        volumeMounts:
-        - name: secrets-store-inline
-          mountPath: "/mnt/secrets-store"
-          readOnly: true
+        # volumeMounts:
+        # - name: secrets-store-inline
+        #   mountPath: "/mnt/secrets-store"
+        #   readOnly: true
 ---
 apiVersion: v1
 kind: Service
