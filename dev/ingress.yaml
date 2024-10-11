@@ -4,12 +4,12 @@ metadata:
   name: platform-api
   # namespace: 1-example
   annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/scheme: internal
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-    # alb.ingress.kubernetes.io/healthcheck-path: '/healthcheck'
+    alb.ingress.kubernetes.io/healthcheck-path: '/healthcheck'
     alb.ingress.kubernetes.io/certificate-arn: 'arn:aws:acm:ap-southeast-2:417805623903:certificate/44cae276-f20e-40b0-8953-861f526a858b'
-    alb.ingress.kubernetes.io/conditions.platform-api: >
-      [{"field":"host-header","hostHeaderConfig":{"values":["beequantai.net"]}}]
+    # alb.ingress.kubernetes.io/conditions.platform-api: >
+    #   [{"field":"host-header","hostHeaderConfig":{"values":["beequantai.net"]}}]
 
     # alb.ingress.kubernetes.io/subnets: beequant-eks-console-subnet-public1-ap-southeast-2a, beequant-eks-console-subnet-public2-ap-southeast-2b
     # alb.ingress.kubernetes.io/target-type: ip
