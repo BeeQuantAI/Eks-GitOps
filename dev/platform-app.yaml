@@ -7,7 +7,7 @@ spec:
   selector:
     matchLabels:
       app: platform-app
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:
@@ -15,24 +15,27 @@ spec:
     spec:
       containers:
       - name: platform-app
-        image: 417805623903.dkr.ecr.ap-southeast-2.amazonaws.com/beequantapp:V0.0.0.3
+        image: 417805623903.dkr.ecr.ap-southeast-2.amazonaws.com/beequantapp:v0.0.7
         ports:
-        - containerPort: 5173
+        - containerPort: 3000
         env:
         - name: NEXT_PUBLIC_DEV_SERVER_URL
           value: "https://beequantai.net/graphql"
+        - name: NEXT_PUBLIC_THIRD_PARTY_API_URL
+          value: "https://beequantai.net/auth"
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: platform-app
   annotations:
-    alb.ingress.kubernetes.io/healthcheck-path: /
+    service.beta.kubernetes.io/aws-load-balancer-type: alb
+    # service.beta.kubernetes.io/aws-load-balancer-internal: "true"
   # namespace: 1-example
 spec:
   ports:
   - port: 443
-    targetPort: 5173
+    targetPort: 3000
     protocol: TCP
   type: NodePort
   selector:
