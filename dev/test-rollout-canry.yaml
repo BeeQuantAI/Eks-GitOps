@@ -1,24 +1,81 @@
-apiVersion: argoproj.io/v1alpha1
+# ---
+# apiVersion: v1
+# kind: Namespace
+# metedata:
+#   name: 1-example
+# ---
+apiVersion: apps/v1
 kind: Rollout
 metadata:
-  name: rollout-canary
+  name: platform-api-Rollout
+  # namespace: 1-example
 spec:
-  replicas: 5
-  revisionHistoryLimit: 2
   selector:
     matchLabels:
-      app: rollout-canary
+      app: platform-api-Rollout
+  replicas: 1
   template:
     metadata:
       labels:
-        app: rollout-canary
+        app: platform-api-Rollout
+      # annotations:
+      #   vault.hashicorp.com/agent-inject: "true"
+      #   vault.hashicorp.com/role: "beequant-eks-cluster"
+      #   vault.hashicorp.com/agent-inject-secret-kv-beequant: "kv/data/beequant"
+      #   vault.hashicorp.com/agent-inject-vault-addr: "https:/3.106.246.17:8200"
+      #   vault.hashicorp.com/tls-skip-verify: "true"
+      #   vault.hashicorp.com/agent-inject-template-kv: |
+      #     {{- with secret "kv/data/beequant" -}}
+      #     export DB_USERNAME="{{ .Data.data.DB_USERNAME }}"
+      #     export DB_PASSWORD="{{ .Data.data.DB_PASSWORD }}"
+      #     export DB_HOST="{{ .Data.data.DB_HOST }}"
+      #     export DB_NAME="{{ .Data.data.DB_NAME }}"
+      #     export JWT_SECRET="{{ .Data.data.JWT_SECRET }}"
+      #     {{- end -}}
     spec:
+      # serviceAccountName: aws-secret-manager-role
+      # volumes:
+      # - name: secrets-store-inline
+      #   csi:
+      #     driver: secrets-store.csi.k8s.io
+      #     readOnly: true
+      #     volumeAttributes:
+      #       secretProviderClass: "aws-secrets"
       containers:
-      - name: rollouts-demo
-        image: nginx:1.26.2-alpine
-        imagePullPolicy: Always
+      - name: platform-api-Rollout
+        image: 417805623903.dkr.ecr.ap-southeast-2.amazonaws.com/beequantapi:v0.0.10
         ports:
-        - containerPort: 8080
+        - containerPort: 3000
+        env:
+        - name: DB_HOST
+          value: "beequantai-eks-db.c9kg4k0u60ua.ap-southeast-2.rds.amazonaws.com"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_USERNAME
+          value: "postgres"
+        - name: DB_PASSWORD
+          value: "CORE_ADMIN"
+        - name: DB_NAME
+          value: "bqCore"
+        - name: JWT_SECRET
+          value: "hello_beeQuant"
+        - name: "EMAIL_USER"
+          value: "info@beequant.ai"
+        - name: "EMAIL_PASS"
+          value: "qyXbab-famhiq-gewha9"
+        - name: "GOOGLE_CLIENT_ID"
+          value: "*"
+        - name: "GOOGLE_CLIENT_SECRET"
+          value: "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"
+        - name: "FACEBOOK_APP_ID"
+          value: "FACEBOOK_APP_ID"
+        - name: "FACEBOOK_APP_SECRET"
+          value: "FACEBOOK_APP_SECRET"
+        - name: "OAUTH_REDIRECT_URI"
+          value: "https://beequantai.net/login-callback"
+        - name: "FRONTEND_URL"
+          value: "https://beequantai.net"
+        # volumeMounts:
   strategy:
     canary:
       steps:
@@ -32,3 +89,6 @@ spec:
       - pause: {duration: 20s}
       - setWeight: 80
       - pause: {duration: 20s}
+        # - name: secrets-store-inline
+        #   mountPath: "/mnt/secrets-store"
+        #   readOnly: true
